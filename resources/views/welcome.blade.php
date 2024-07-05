@@ -18,7 +18,10 @@
 </head>
 
 <body class="font-sans antialiased dark:bg-black dark:text-white/50">
+    <h1>Lifewire</h1>
+
     @lifewire(App\Lifewire\Counter::class)
+    @lifewire(App\Lifewire\Todos::class)
     <script src="/lifewire.js"></script>
 </body>
 

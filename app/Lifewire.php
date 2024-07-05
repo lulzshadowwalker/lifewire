@@ -62,9 +62,14 @@ class Lifewire
     function setProperties($component, $properties)
     {
         foreach ($properties as $key => $value) {
-            $component->$key = $value;
+            $this->setProperty($component, $key, $value);
         }
     }
+
+    function setProperty($component, $property, $value) {
+        $component->$property = $value;
+    }
+
     function call($component, $action)
     {
         $component->{$action}();

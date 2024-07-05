@@ -21,6 +21,7 @@ class Counter
         return
             <<<'HTML'
             <section>
+                <h2>Counter</h2>
                 <button wire:click="decrement">➖</button>
                 <span>{{ $count }}</span>
                 <button wire:click="increment">➕</button>

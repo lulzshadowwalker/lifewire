@@ -17,6 +17,10 @@ Route::post('/lifewire', function() {
         $lifewire->call($component, $action);
     }
 
+    if ([$property, $value] = request('update')) {
+        $lifewire->setProperty($component, $property, $value);
+    }
+
     [$html, $snapshot] = $lifewire->toSnapshot($component);
 
     return [
