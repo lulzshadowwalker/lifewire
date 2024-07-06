@@ -5,12 +5,18 @@ namespace App;
 use Illuminate\Support\Facades\Blade;
 use ReflectionClass;
 use ReflectionProperty;
+use Illuminate\Support\Str;
 
 class Lifewire
 {
     function initialRender($class)
     {
         $component = new $class();
+
+        if (method_exists($component, 'mount')) {
+            $component->mount();
+        }
+
         [$html, $snapshot] = $this->toSnapshot($component);
         $snapshotAttr = htmlentities(json_encode($snapshot));
 
@@ -66,8 +72,14 @@ class Lifewire
         }
     }
 
-    function setProperty($component, $property, $value) {
+    function setProperty($component, $property, $value)
+    {
         $component->$property = $value;
+
+        $updatedHook = 'updated' . Str::title($property);
+        if (method_exists($component, $updatedHook)) {
+            $component->{$updatedHook}($value);
+        }
     }
 
     function call($component, $action)
