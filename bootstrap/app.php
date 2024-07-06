@@ -14,11 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->removeFromGroup('web', [
-            ConvertEmptyStringsToNull::class,
-            TrimStrings::class,
-            ValidateCsrfToken::class,
-        ]);
+        $middleware->remove(ConvertEmptyStringsToNull::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

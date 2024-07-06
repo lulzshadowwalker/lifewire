@@ -30,6 +30,8 @@ class Lifewire
 
     function fromSnapshot($snapshot)
     {
+        $this->verifyChecksum($snapshot);
+
         $class = $snapshot['class'];
         $data= $snapshot['data'];
         $metadata = $snapshot['metadata'];
@@ -56,6 +58,8 @@ class Lifewire
             'data' => $data,
             'metadata' => $metadata,
         ];
+
+        $snapshot['checksum'] = $this->generateChecksum($snapshot);
 
         return [$html, $snapshot];
     }
@@ -123,5 +127,23 @@ class Lifewire
     function call($component, $action)
     {
         $component->{$action}();
+    }
+
+    function generateChecksum($snapshot)
+    {
+        // NOTE: better use a more secure hashing algorithm like HMAC and use hash_equals instead of !==
+        // because "the hash can be recreated one character at a time by looking at the distribution
+        // of the response times (!== will stop on the first character mismatch"
+        return md5(json_encode($snapshot));
+    }
+
+    function verifyChecksum($snapshot)
+    {
+        $checksum = $snapshot['checksum'];
+        unset($snapshot['checksum']);
+
+        if ($this->generateChecksum($snapshot) !== $checksum) {
+            throw new \Exception('Invalid checksum');
+        }
     }
 }
