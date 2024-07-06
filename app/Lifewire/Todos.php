@@ -5,11 +5,18 @@ namespace App\Lifewire;
 class Todos
 {
     public $prompt = '';
-    public $todos = ['Learn Laravel'];
+    public $todos;
+
+    public function mount()
+    {
+        $this->todos = collect(['Learn Laravel']);
+    }
 
     public function add()
     {
-        $this->todos[] = $this->prompt;
+        if (!$this->prompt) return;
+
+        $this->todos->push($this->prompt);
         $this->prompt = '';
     }
 

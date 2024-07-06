@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Blade;
 use ReflectionClass;
 use ReflectionProperty;
@@ -31,9 +32,12 @@ class Lifewire
     {
         $class = $snapshot['class'];
         $data= $snapshot['data'];
+        $metadata = $snapshot['metadata'];
 
         $component = new $class();
-        $this->setProperties($component, $data);
+
+        $properties = $this->hydrate($data, $metadata);
+        $this->setProperties($component, $properties);
 
         return $component;
     }
@@ -42,15 +46,49 @@ class Lifewire
     {
         $html = Blade::render(
             $component->render(),
-            $properties = $this->getProperties($component),
+            $properties = $this->getProperties($component)
         );
+
+        [$data, $metadata] = $this->dehydrate($properties);
 
         $snapshot = [
             'class' => get_class($component),
-            'data' => $properties,
+            'data' => $data,
+            'metadata' => $metadata,
         ];
 
         return [$html, $snapshot];
+    }
+
+    function hydrate($data, $metadata)
+    {
+        $properties = [];
+
+        foreach ($data as $key => $value) {
+            if (isset($metadata[$key]) && $metadata[$key] === 'collection') {
+                $value = collect($value);
+            }
+
+            $properties[$key] = $value;
+        }
+
+        return $properties;
+    }
+
+    function dehydrate($properties): array
+    {
+        $data = $metadata = [];
+
+        foreach ($properties as $key => $value) {
+            if ($value instanceof Collection) {
+                $value = $value->toArray();
+                $metadata[$key] = 'collection';
+            }
+
+            $data[$key] = $value;
+        }
+
+        return [$data, $metadata];
     }
 
     function getProperties($component)
